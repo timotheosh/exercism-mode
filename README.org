@@ -1,0 +1,5 @@
+* exercism-el
+  :PROPERTIES:
+  :CUSTOM_ID: exercism-el
+  :END:
+Exercism mode for Emacs, using the exercism CLI tool.
