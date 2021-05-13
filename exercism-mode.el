@@ -61,7 +61,7 @@
   :group 'exercism
   ;; Checks if projectile is loaded, and will add a project root discovery function for it.
   (if (and (boundp 'projectile-mode)
-           (not (member 'exercism-find-project-root 'projectile-project-root-functions)))
+           (not (member 'exercism-find-project-root projectile-project-root-functions)))
       (setq projectile-project-root-functions
             (cons 'exercism-find-project-root
                   projectile-project-root-functions))))
