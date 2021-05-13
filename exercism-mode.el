@@ -5,7 +5,7 @@
 ;; Author: Tim Hawes <https://github.com/timotheosh>
 ;; Maintainer: Tim Hawes <trhawes@gmail.com>
 ;; Created: May 11, 2021
-;; Modified: May 11, 2021
+;; Modified: May 13, 2021
 ;; Version: 0.0.1
 ;; Keywords: Symbol’s value as variable is void: finder-known-keywords
 ;; Homepage: https://github.com/thawes/exercism-mode
@@ -15,6 +15,11 @@
 ;;
 ;;; Commentary:
 ;;
+;; Provides some functionality while working on programming problems found on
+;; https://exercism.io. Rather than try to use an undocumented API, this uses
+;; the exercism cli tool to run tasks.
+;;
+;; This is a work in progress.
 ;;
 ;;
 ;;; Code:
