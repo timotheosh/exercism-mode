@@ -3,3 +3,46 @@
   :CUSTOM_ID: exercism-el
   :END:
 Exercism mode for Emacs, using the exercism CLI tool.
+
+** Installation
+*** Clone the repo
+#+begin_src shell
+git clone https://github.com/timotheosh/exercism-mode/
+#+end_src
+
+*** Vanilla Emacs
+**** Install ~projectile~
+Follow the quickstart guide for installing projectile [[https://github.com/bbatsov/projectile][here]].
+**** Add ~exercism-mode~ to your emacs config.
+Add to your ~~/.emacs.d/init.el~ the following:
+#+begin_src emacs-lisp
+(add-to-list 'load-path "<path to exercism-mode repo>")
+(require 'projectile)
+(require 'exercism-mode)
+(add-hook 'projectile-mode-hook 'exercism-mode)
+#+end_src
+*** Using ~use-package~
+**** Install ~projectile~
+Follow the quickstart guide for installing projectile [[https://github.com/bbatsov/projectile][here]].
+**** Add ~exercism-mode~ to your emacs config.
+Add to your ~~/.emacs.d/init.el~ the following:
+#+begin_src emacs-lisp
+(use-package exercism-mode
+  :load-path "<path to exercism-mode repo>"
+  :config
+  (add-hook 'projectile-mode-hook 'exercism-mode))
+#+end_src
+*** Doom Emacs
+**** Installation for Doom Emacs
+Add the following to your ~packages.el~:
+#+begin_src emacs-lisp
+(package! exercism-mode :recipe (:host github :repo "timotheosh/exercism-mode"))
+#+end_src
+**** Config for Doom Emacs
+The projectile package is an integral part of Doom Emacs core. The easiest way to integrate ~exercism-mode~ with Doom Emacs is adding the following to your ~config.el~:
+#+begin_src emacs-lisp
+(use-package! exercism-mode
+  :after projectile
+  :config (exercism-mode +1))
+(add-hook 'after-change-major-mode-hook #'exercism-mode)
+#+end_src

@@ -66,7 +66,7 @@
   "Minor mode for exercism."
   :lighter "Exercism"
   :group 'exercism
-  ;; Checks if projectile is loaded, and will add a project root discovery function for it.
+  ;; Add a project root discovery function for projectile and give it precedence.
   (push 'exercism-find-project-root
         projectile-project-root-functions))
 
