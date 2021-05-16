@@ -60,17 +60,17 @@
                 (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list) (nth 2 dir-list)) "/")
               (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list)) "/"))))))))
 
+
 (define-minor-mode exercism-mode
   "Minor mode for exercism."
   :lighter "Exercism"
   :group 'exercism
   ;; Checks if projectile is loaded, and will add a project root discovery function for it.
-  (if (and (boundp 'projectile-mode)
-           (not (member 'exercism-find-project-root projectile-project-root-functions)))
-      (setq projectile-project-root-functions
-            (cons 'exercism-find-project-root
-                  projectile-project-root-functions))))
+  (with-eval-after-load 'projectile
+    (push 'exercism-find-project-root
+          projectile-project-root-functions)))
 
+(add-hook 'projectile-mode-hook 'exercism-mode)
 
 (provide 'exercism-mode)
 ;;; exercism-mode.el ends here
