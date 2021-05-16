@@ -24,6 +24,7 @@
 ;;
 ;;; Code:
 (require 'json)
+(require 'projectile)
 
 (defun find-exercism-config ()
   "Looks for the common places the exercism config might be in. Returns nil if it doesn't find it."
@@ -66,9 +67,8 @@
   :lighter "Exercism"
   :group 'exercism
   ;; Checks if projectile is loaded, and will add a project root discovery function for it.
-  (with-eval-after-load 'projectile
-    (push 'exercism-find-project-root
-          projectile-project-root-functions)))
+  (push 'exercism-find-project-root
+        projectile-project-root-functions))
 
 (add-hook 'projectile-mode-hook 'exercism-mode)
 
