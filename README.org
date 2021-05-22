@@ -4,6 +4,8 @@
   :END:
 Exercism mode for Emacs, using the exercism CLI tool.
 
+** Description
+This is a minor mode for working with [[https://exercism.io][Exercism]] problems within Emacs. It integrates with [[https://github.com/bbatsov/projectile][projectile-mode]] to use your problem's directory as it's own directory root. Each programming problem is its own projectile project, which will give you all the features projectile offers for defined projects. The function for finding the project root is ~push~-ed to projectile's ~projectile-project-root-functions~ list, so it will check if your project is in your Exercism workspace, and act accordingly, before any other functions for finding your project root is run. This is especially beneficial, if your Exercism workspace directory is being stored in a VCS, like git. Currently it ignores ~users~ and ~teams~ directories.
 ** Installation
 *** Clone the repo
 #+begin_src shell
@@ -46,3 +48,7 @@ The projectile package is an integral part of Doom Emacs core. The easiest way t
   :config (exercism-mode +1))
 (add-hook 'after-change-major-mode-hook #'exercism-mode)
 #+end_src
+
+** Features
+1. Minor mode adds a function to find your exercism problem project directory.
+2. ~M-x exercism~ Opens a dired session in your Exercism workspace root.

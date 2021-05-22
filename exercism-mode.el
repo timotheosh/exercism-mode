@@ -32,7 +32,11 @@
         ((file-exists-p (expand-file-name "~/.config/exercism/user.json")) (expand-file-name "~/.config/exercism/user.json"))
         ((file-exists-p (expand-file-name "~/.exercism/user.json")) (expand-file-name "~/.exercism/user.json"))))
 
-(defcustom exercism-config-path (find-exercism-config) "Path where the exercism config file can be found.")
+(defcustom exercism-config-path
+  (find-exercism-config)
+  "Path where the exercism config file can be found."
+  :group 'exercism-mode
+  :type 'string)
 
 (defun read-exercism-config ()
   "Reads the config file for exercism, Returns read data as a hash-table."
@@ -41,9 +45,14 @@
          (json-key-type 'string))
     (json-read-file exercism-config-path)))
 
-(defcustom exercism-workspace (gethash "workspace" (read-exercism-config)) "Path for the Exercism workspace.")
+(defcustom exercism-workspace
+  (gethash "workspace" (read-exercism-config))
+  "Path for the Exercism workspace."
+  :type 'string
+  :group 'exercism-mode)
 
 (defun exercism ()
+  "Open a dired window at the exercism root directory."
   (interactive)
   (dired exercism-workspace))
 
@@ -61,14 +70,41 @@
                 (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list) (nth 2 dir-list)) "/")
               (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list)) "/"))))))))
 
+(defcustom exercism-cli-path
+  (executable-find "exercism")
+  "Path for the exercism cli program."
+  :group 'exercism-mode
+  :type 'string)
+
+(defun exc-process-output (process output)
+  "This is a filter for the the run-exercism function. PROCESS is unused. OUTPUT is from the running process."
+  (message (string-trim output)))
+
+(defun run-exercism (&rest args)
+  "Run the exercism cli tool with ARGS."
+  (let ((cmd (push exercism-cli-path args)))
+    (make-process
+     :name "exercism"
+     :buffer "*exercism-cli*"
+     :filter 'exc-process-output
+     :command cmd
+     )))
+
+(defun exercism-download-exercise (track exercise)
+  "TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
+  (run-exercism "download" "--track" track "--exercise" exercise))
+
 
 (define-minor-mode exercism-mode
   "Minor mode for exercism."
   :lighter "Exercism"
   :group 'exercism
   ;; Add a project root discovery function for projectile and give it precedence.
-  (push 'exercism-find-project-root
-        projectile-project-root-functions))
+  (when (not (member 'exercism-find-project-root projectile-project-root-functions))
+    (push 'exercism-find-project-root
+          projectile-project-root-functions))
+  (when (null exercism-cli-path)
+    (message "You need to set the path to your exercism cli program to exercism-cli-path")))
 
 (add-hook 'projectile-mode-hook 'exercism-mode)
 
