@@ -86,14 +86,35 @@
     (make-process
      :name "exercism"
      :buffer "*exercism-cli*"
-     :filter 'exc-process-output
+     :filter #'exc-process-output
      :command cmd
      )))
 
 (defun exercism-download-exercise (track exercise)
-  "TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
-  (run-exercism "download" "--track" track "--exercise" exercise))
+  "Downloads an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
+  (interactive "sTrack: \nsExercise: ")
+  (run-exercism "download"
+                "--track" track
+                "--exercise" exercise))
 
+(defun exercism-submit-exercise (track exercise)
+  "Submits an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
+  (interactive "sTrack: \nsExercise: ")
+  (run-exercism "submit"
+                "--track" track
+                "--exercise" exercise))
+
+(defun exercism-submit-exercise-in-buffer ()
+  "Submit an exercise in buffer."
+  (let ((exc-path (exercism-find-project-root default-directory)))
+    (when exc-path
+      (let* ((dirs (split-string exc-path "/" t))
+             (size (safe-length dirs))
+             (exercise (nth (- size 1) dirs))
+             (track (nth (- size 2) dirs)))
+        (run-exercism "submit"
+                      "--track" track
+                      "--exercise" exercise)))))
 
 (define-minor-mode exercism-mode
   "Minor mode for exercism."
@@ -110,3 +131,4 @@
 
 (provide 'exercism-mode)
 ;;; exercism-mode.el ends here
+(projectile-ensure-project default-directory)
