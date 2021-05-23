@@ -41,14 +41,7 @@ Add the following to your ~packages.el~:
 (package! exercism-mode :recipe (:host github :repo "timotheosh/exercism-mode"))
 #+end_src
 **** Config for Doom Emacs
-The projectile package is an integral part of Doom Emacs core. The easiest way to integrate ~exercism-mode~ with Doom Emacs is adding the following to your ~config.el~:
-#+begin_src emacs-lisp
-(use-package! exercism-mode
-  :after projectile
-  :config (exercism-mode +1))
-(add-hook 'after-change-major-mode-hook #'exercism-mode)
-#+end_src
-
+There is nothing else needed to use ~exercism-mode~ in Doom Emacs.
 ** Features
 1. Minor mode adds a function to find your exercism problem project directory.
 2. ~M-x exercism~ Opens a dired session in your Exercism workspace root.

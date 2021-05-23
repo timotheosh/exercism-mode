@@ -57,6 +57,7 @@
   (dired exercism-workspace))
 
 (defun exercism-find-project-root (&optional dir)
+  "Finds the project root of an exercism.io exercise."
   (let* ((dir (or dir default-directory))
          (exc-dir (length exercism-workspace))
          (buff-dir (length dir)))
