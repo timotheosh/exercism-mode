@@ -88,15 +88,16 @@
      :name "exercism"
      :buffer "*exercism-cli*"
      :filter #'exc-process-output
-     :command cmd
-     )))
+     :command cmd)))
 
 (defun exercism-download-exercise (track exercise)
   "Downloads an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
   (interactive "sTrack: \nsExercise: ")
   (run-exercism "download"
                 "--track" track
-                "--exercise" exercise))
+                "--exercise" exercise)
+  (when (file-directory-p (concat exercism-workspace "/" track "/" exercise))
+    (dired (concat exercism-workspace "/" track "/" exercise))))
 
 (defun exercism-submit-exercise (track exercise)
   "Submits an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
