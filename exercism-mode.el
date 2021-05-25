@@ -83,6 +83,8 @@
 
 (defun run-exercism (&rest args)
   "Run the exercism cli tool with ARGS."
+  (when (equal (type-of args) 'cons)
+    (setq args (car args)))
   (let ((cmd (push exercism-cli-path args)))
     (make-process
      :name "exercism"
@@ -99,12 +101,18 @@
   (when (file-directory-p (concat exercism-workspace "/" track "/" exercise))
     (dired (concat exercism-workspace "/" track "/" exercise))))
 
-(defun exercism-submit-exercise (track exercise)
+(defun exercism-submit-file ()
   "Submits an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
-  (interactive "sTrack: \nsExercise: ")
-  (run-exercism "submit"
-                "--track" track
-                "--exercise" exercise))
+  (interactive)
+  (run-exercism "submit" buffer-file-name))
+
+(defun exercism-dired-submit-marked-files ()
+  "Submit all files marked in dired to exercism.io"
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (run-exercism (push "submit" files))
+      (message "There are no marked files in dired."))))
 
 (defun exercism-submit-exercise-in-buffer ()
   "Submit an exercise in buffer."
@@ -117,6 +125,16 @@
         (run-exercism "submit"
                       "--track" track
                       "--exercise" exercise)))))
+
+(defun exercism-download-command (cmd)
+  "exercism.io website has a button that allows the user to copy
+  and paste the needed exercism cli command. This function allows
+  the user to paste the command directly into emacs."
+  (interactive "sPaste exercism download command: ")
+  (let* ((cmd-list (split-string cmd))
+         (exercise (nth 1 (split-string (nth 2 cmd-list) "=" t)))
+         (track (nth 1 (split-string (nth 3 cmd-list) "=" t))))
+    (exercism-download-exercise track exercise)))
 
 (define-minor-mode exercism-mode
   "Minor mode for exercism."
