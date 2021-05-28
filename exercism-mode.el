@@ -6,9 +6,9 @@
 ;; Maintainer: Tim Hawes <trhawes@gmail.com>
 ;; Created: May 11, 2021
 ;; Modified: May 13, 2021
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Keywords: Symbol’s value as variable is void: finder-known-keywords
-;; Homepage: https://github.com/thawes/exercism-mode
+;; Homepage: https://github.com/timotheosh/exercism-mode
 ;; Package-Requires: ((emacs "24.3"))
 ;;
 ;; This file is not part of GNU Emacs.
@@ -27,7 +27,8 @@
 (require 'projectile)
 
 (defun find-exercism-config ()
-  "Looks for the common places the exercism config might be in. Returns nil if it doesn't find it."
+  "Looks for the common places the exercism config might be in.
+Returns nil if it doesn't find it."
   (cond ((file-exists-p (expand-file-name "~/snap/exercism/current/.config/exercism/user.json")) (expand-file-name "~/snap/exercism/current/.config/exercism/user.json"))
         ((file-exists-p (expand-file-name "~/.config/exercism/user.json")) (expand-file-name "~/.config/exercism/user.json"))
         ((file-exists-p (expand-file-name "~/.exercism/user.json")) (expand-file-name "~/.exercism/user.json"))))
@@ -58,18 +59,27 @@
 
 (defun exercism-find-project-root (&optional dir)
   "Finds the project root of an exercism.io exercise."
-  (let* ((dir (or dir default-directory))
-         (exc-dir (length exercism-workspace))
-         (buff-dir (length dir)))
-    (when (< exc-dir buff-dir)
-      (let ((p (substring dir 0 exc-dir)))
-        (when (string= exercism-workspace p)
-          (let* ((exer-dir (substring dir exc-dir))
-                 (dir-list (split-string exer-dir "/" t)))
-            (if (or (string= (car dir-list) "users")
-                    (string= (car dir-list) "teams"))
-                (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list) (nth 2 dir-list)) "/")
-              (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list)) "/"))))))))
+  (let ((dir (file-truename (or dir default-directory))))
+    (or
+     (locate-dominating-file dir ".exercism/metadata.json")
+     (let ((exc-dir (length exercism-workspace))
+           (buff-dir (length dir)))
+       (when (< exc-dir buff-dir)
+         (let ((p (substring dir 0 exc-dir)))
+           (when (string= exercism-workspace p)
+             (let* ((exer-dir (substring dir exc-dir))
+                    (dir-list (split-string exer-dir "/" t)))
+               (string-join (list exercism-workspace (nth 0 dir-list) (nth 1 dir-list)) "/")))))))))
+
+(defun exercism-get-track-exercise ()
+  "Returns the track and exercise names for currect file."
+  (let ((exc-path (exercism-find-project-root default-directory)))
+    (when exc-path
+      (let* ((dirs (split-string exc-path "/" t))
+             (size (safe-length dirs))
+             (exercise (nth (- size 1) dirs))
+             (track (nth (- size 2) dirs)))
+        (list track exercise)))))
 
 (defcustom exercism-cli-path
   (executable-find "exercism")
@@ -78,14 +88,17 @@
   :type 'string)
 
 (defun exc-process-output (process output)
-  "This is a filter for the the run-exercism function. PROCESS is unused. OUTPUT is from the running process."
+  "This is a filter for the the run-exercism function. PROCESS is
+unused. OUTPUT is from the running process."
   (message (string-trim output)))
 
 (defun run-exercism (&rest args)
-  "Run the exercism cli tool with ARGS."
-  (when (equal (type-of args) 'cons)
+  "Run the exercism cli tool with ARGS. ARGS can be &rest or a
+single list. It should never be both."
+  (when (equal (type-of (car args)) 'cons) ; Check if ARGS is being passed as a list.
     (setq args (car args)))
   (let ((cmd (push exercism-cli-path args)))
+    (message (message "Running exercism-cli with: %s" cmd))
     (make-process
      :name "exercism"
      :buffer "*exercism-cli*"
@@ -93,7 +106,8 @@
      :command cmd)))
 
 (defun exercism-download-exercise (track exercise)
-  "Downloads an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
+  "Downloads an exercise. TRACK is the exercism track. EXERCISE
+is the name of the exercism exercise."
   (interactive "sTrack: \nsExercise: ")
   (run-exercism "download"
                 "--track" track
@@ -101,30 +115,13 @@
   (when (file-directory-p (concat exercism-workspace "/" track "/" exercise))
     (dired (concat exercism-workspace "/" track "/" exercise))))
 
-(defun exercism-submit-file ()
-  "Submits an exercise. TRACK is the exercism track. EXERCISE is the name of the exercism exercise."
+(defun exercism-refresh-exercise ()
+  "Updates current exercise from Exercism.io to the latest version."
   (interactive)
-  (run-exercism "submit" buffer-file-name))
-
-(defun exercism-dired-submit-marked-files ()
-  "Submit all files marked in dired to exercism.io"
-  (interactive)
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (run-exercism (push "submit" files))
-      (message "There are no marked files in dired."))))
-
-(defun exercism-submit-exercise-in-buffer ()
-  "Submit an exercise in buffer."
-  (let ((exc-path (exercism-find-project-root default-directory)))
-    (when exc-path
-      (let* ((dirs (split-string exc-path "/" t))
-             (size (safe-length dirs))
-             (exercise (nth (- size 1) dirs))
-             (track (nth (- size 2) dirs)))
-        (run-exercism "submit"
-                      "--track" track
-                      "--exercise" exercise)))))
+  (let ((exercise-data (exercism-get-track-exercise)))
+    (if exercise-data
+        (exercism-download-exercise (nth 0 exercise-data) (nth 1 exercise-data))
+      (message "This file is not in an Exercism project."))))
 
 (defun exercism-download-command (cmd)
   "exercism.io website has a button that allows the user to copy
@@ -135,6 +132,31 @@
          (exercise (nth 1 (split-string (nth 2 cmd-list) "=" t)))
          (track (nth 1 (split-string (nth 3 cmd-list) "=" t))))
     (exercism-download-exercise track exercise)))
+
+(defun exercism-submit-file ()
+  "Submits an exercise. TRACK is the exercism track. EXERCISE is
+the name of the exercism exercise."
+  (interactive)
+  (if (exercism-find-project-root default-directory)
+      (run-exercism "submit" buffer-file-name)
+    (message "This file is not in an Exercism project.")))
+
+(defun exercism-dired-submit-marked-files ()
+  "Submit all files marked in dired to exercism.io"
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (run-exercism (push "submit" files))
+      (message "There are no marked files in dired."))))
+
+(defvar exercism-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c s") 'exercism-submit-file)
+    (define-key map (kbd "C-c d") 'exercism-download-exercise)
+    (define-key map (kbd "C-c p") 'exercism-download-command)
+    (define-key map (kbd "C-c r") 'exercism-refresh-exercise)
+    (define-key dired-mode-map (kbd "C-c e") 'exercism-dired-submit-marked-files)
+    map))
 
 (define-minor-mode exercism-mode
   "Minor mode for exercism."
