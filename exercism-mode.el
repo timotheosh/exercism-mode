@@ -173,4 +173,3 @@ the name of the exercism exercise."
 
 (provide 'exercism-mode)
 ;;; exercism-mode.el ends here
-(projectile-ensure-project default-directory)
