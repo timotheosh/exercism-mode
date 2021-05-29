@@ -43,17 +43,21 @@ Add the following to your ~packages.el~:
 **** Config for Doom Emacs
 There is nothing else needed to use ~exercism-mode~ in Doom Emacs.
 ** Available Operations
-*** ~'exercism-submit-file~
-Submits the opened file to Exercism.io.
-*** ~'exercism-dired-submit-marked-files~
-Submits all the marked files within dired to Exercism.io
-*** ~'exercism-download-exercise~
-Prompts you for the track and exercise name to download, opens a dired session in the newly downloaded exercise.
-*** ~'exercism-download-command~
-Exercism.io's website gives a cli command to download a given exercise, using the exercism cli tool. This function will prompt you to paste the command you copied from your web browser, and runs exercism cli for you, and opens a dired session on the newly downloaded exercise.
-*** ~'exercism-refresh-exercise~
-Will redownload the exercise you are viewing right now.
-*** Default Keybindins
+*** Interactive Functions
+- ~'exercism-submit-file~
+  Submits the opened file to Exercism.io.
+- ~'exercism-dired-submit-marked-files~
+  Submits all the marked files within dired to Exercism.io
+- ~'exercism-download-exercise~
+  Prompts you for the track and exercise name to download, opens a dired session in the newly downloaded exercise.
+- ~'exercism-download-command~
+  Exercism.io's website gives a cli command to download a given exercise, using
+  the exercism cli tool. This function will prompt you to paste the command you
+  copied from your web browser, and runs exercism cli for you, and opens a dired
+  session on the newly downloaded exercise.
+- ~'exercism-refresh-exercise~
+  Will redownload the exercise you are viewing right now.
+*** Default Keybindings
 Change these to whatever works for you.
 #+begin_src emacs-lisp :tangle no
 (defvar exercism-mode-map
