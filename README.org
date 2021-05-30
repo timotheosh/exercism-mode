@@ -55,6 +55,8 @@ There is nothing else needed to use ~exercism-mode~ in Doom Emacs.
   session on the newly downloaded exercise.
 - 'exercism-refresh-exercise ::
   Will redownload the exercise you are viewing right now.
+- 'exercism-open-exercise-web ::
+  Opens a web browser on current exercise problem. It defaults to eww, but you can change it by setting ~exercism-web-browser-function~. Useful if you forget what the exercise is. Just bear in mind that if you use a web browser that is already logged into the Exercism site, you might get redirected to the track's main page (which was the default for the Exercism website on the day of this writing).
 *** Default Keybindings
 Change these to whatever works for you.
 #+begin_src emacs-lisp :tangle no
@@ -64,6 +66,7 @@ Change these to whatever works for you.
     (define-key map (kbd "C-c d") 'exercism-download-exercise)
     (define-key map (kbd "C-c p") 'exercism-download-command)
     (define-key map (kbd "C-c r") 'exercism-refresh-exercise)
+    (define-key map (kbd "C-c w") 'exercism-open-exercise-web)
     (define-key dired-mode-map (kbd "C-c e") 'exercism-dired-submit-marked-files)
     map))
 #+end_src

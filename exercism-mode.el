@@ -39,6 +39,12 @@ Returns nil if it doesn't find it."
   :group 'exercism-mode
   :type 'string)
 
+(defcustom exercism-web-browser-function
+  'eww-browse-url
+  "Browser function to use when viewing documentation for Exercism."
+  :group 'exercism-mode
+  :type browse-url--browser-defcustom-type)
+
 (defun read-exercism-config ()
   "Reads the config file for exercism, Returns read data as a hash-table."
   (let* ((json-object-type 'hash-table)
@@ -79,7 +85,7 @@ Returns nil if it doesn't find it."
              (size (safe-length dirs))
              (exercise (nth (- size 1) dirs))
              (track (nth (- size 2) dirs)))
-        (list track exercise)))))
+        (list :track track :exercise exercise)))))
 
 (defcustom exercism-cli-path
   (executable-find "exercism")
@@ -120,7 +126,7 @@ is the name of the exercism exercise."
   (interactive)
   (let ((exercise-data (exercism-get-track-exercise)))
     (if exercise-data
-        (exercism-download-exercise (nth 0 exercise-data) (nth 1 exercise-data))
+        (exercism-download-exercise (plist-get exercise-data :track) (plist-get exercise-data :exercise))
       (message "This file is not in an Exercism project."))))
 
 (defun exercism-download-command (cmd)
@@ -149,12 +155,24 @@ the name of the exercism exercise."
         (run-exercism (push "submit" files))
       (message "There are no marked files in dired."))))
 
+(defun exercism-open-exercise-web ()
+  "Opens the current exercism exercise on the exercism website."
+  (interactive)
+  (let ((track-exercise (exercism-get-track-exercise)))
+    (if track-exercise
+        (funcall exercism-web-browser-function
+                 (format "https://exercism.io/tracks/%s/exercises/%s"
+                         (plist-get track-exercise :track)
+                         (plist-get track-exercise :exercise)))
+      (message "File is not part of an Exercism exercise."))))
+
 (defvar exercism-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c s") 'exercism-submit-file)
     (define-key map (kbd "C-c d") 'exercism-download-exercise)
     (define-key map (kbd "C-c p") 'exercism-download-command)
     (define-key map (kbd "C-c r") 'exercism-refresh-exercise)
+    (define-key map (kbd "C-c w") 'exercism-open-exercise-web)
     (define-key dired-mode-map (kbd "C-c e") 'exercism-dired-submit-marked-files)
     map))
 
