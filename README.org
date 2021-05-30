@@ -21,6 +21,7 @@ Add to your ~~/.emacs.d/init.el~ the following:
 (add-to-list 'load-path "<path to exercism-mode repo>")
 (require 'projectile)
 (require 'exercism-mode)
+(projectile-mode +1)
 (add-hook 'projectile-mode-hook 'exercism-mode)
 #+end_src
 *** Using ~use-package~
@@ -31,6 +32,7 @@ Add to your ~~/.emacs.d/init.el~ the following:
 #+begin_src emacs-lisp
 (use-package exercism-mode
   :load-path "<path to exercism-mode repo>")
+(add-hook 'projectile-mode-hook 'exercism-mode)
 #+end_src
 *** Doom Emacs
 **** Installation for Doom Emacs
@@ -39,7 +41,12 @@ Add the following to your ~packages.el~:
 (package! exercism-mode :recipe (:host github :repo "timotheosh/exercism-mode"))
 #+end_src
 **** Config for Doom Emacs
-There is nothing else needed to use ~exercism-mode~ in Doom Emacs.
+Projectile is a part of Doom Emacs internals (you never have a mode where projectile is not active), so we should just activate exercism.
+#+begin_src emacs-lisp
+(use-package! exercism-mode
+  :after projectile
+  :config (exercism-mode +1))
+#+end_src
 ** Available Operations
 *** Interactive Functions
 - 'exercism-submit-file ::

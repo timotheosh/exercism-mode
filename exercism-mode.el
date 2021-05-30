@@ -187,7 +187,5 @@ the name of the exercism exercise."
   (when (null exercism-cli-path)
     (message "You need to set the path to your exercism cli program to exercism-cli-path")))
 
-(add-hook 'projectile-mode-hook 'exercism-mode)
-
 (provide 'exercism-mode)
 ;;; exercism-mode.el ends here
